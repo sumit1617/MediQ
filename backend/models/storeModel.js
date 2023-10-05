@@ -73,6 +73,16 @@ const storeSchema = mongoose.Schema({
 
   medicines: [],
 
+  ratings: {
+    type: Number,
+    default: 0,
+  },
+
+  numOfReviews: {
+    type: Number,
+    default: 0,
+  },
+
   reviews: [
     {
       user: {
