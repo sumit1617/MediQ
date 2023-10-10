@@ -79,10 +79,19 @@ exports.updateMedicine = catchAsyncErrors(async(req, res, next) => {
 
   const updatedMedicine = req.body
 
-  await store.medicines.updateOne(
-    medicine,
-    updatedMedicine
+  await Store.findByIdAndUpdate(
+    req.query.id,
+    {
+      updatedMedicine
+    },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
   )
+
+  await store.save({ validateBeforeSave: false });
 
   res.status(200).json({
     success: true,

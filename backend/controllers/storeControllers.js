@@ -178,7 +178,7 @@ exports.createStoreReview = catchAsyncErrors(async(req, res, next) => {
 
 // Get the Reviews of the Product
 exports.getStoreReviews = catchAsyncErrors(async(req, res, nezt) => {
-  const store = await Store.findById(req.params.id);
+  const store = await Store.findById(req.query.id);
 
   if(!store){
     return next(new ErrorHandler("Store not found", 404));
@@ -190,4 +190,55 @@ exports.getStoreReviews = catchAsyncErrors(async(req, res, nezt) => {
     success: true,
     reviews
   });
+})
+
+
+// DELETE REVIEW
+exports.deleteReview = catchAsyncErrors(async(req, res, next) => {
+  const store = await Store.findById(req.query.storeID)
+
+  if(!store) {
+    return next(new ErrorHandler("Store Not Found", 404))
+  }
+
+  const reviews = store.reviews.filter(
+    (rev) => rev._id.toString() !== req.query.id.toString()
+  );
+
+  let avg = 0;
+
+  reviews.forEach((rev) => {
+    avg += rev.rating;
+  });
+
+  let ratings = 0;
+
+  if (reviews.length === 0) {
+    ratings = 0;
+  } else {
+    ratings = avg / reviews.length;
+  }
+
+  const numOfReviews = reviews.length;
+
+  await Store.findByIdAndUpdate(
+    req.query.productId,
+    {
+      reviews,
+      ratings,
+      numOfReviews,
+    },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Review Deleted Successfully"
+  });
+
+
 })
